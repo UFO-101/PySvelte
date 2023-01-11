@@ -158,6 +158,7 @@ class Html:
     def publish(
         self,
         path: Optional[str] = None,
+        source_map: bool = False,
         *,
         dev=None,
         dev_host=None,
@@ -169,9 +170,18 @@ class Html:
         """
         Publish a piece of html. See Publisher.publish_html.
         """
-        out = self.update_meta(title=title, description=description)
+        new_script_paths = set(self.script_paths)
+        new_script_paths.remove("loader.js")
+        source_map_name = list(new_script_paths)[0] + ".map" if source_map else None
+        out = (
+            self.update_meta(title=title, description=description)
+            if title or description
+            else self
+        )
         return get_publisher().publish_html(
             out,
+            source_map_name=source_map_name,
+            # source_map_name="AttentionMulti.js.map",
             path=path,
             dev=dev,
             dev_host=dev_host,

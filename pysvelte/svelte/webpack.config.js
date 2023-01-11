@@ -64,7 +64,7 @@ function make_entry_map(env) {
     if (env.entry != undefined) {
         var raw_entry_map = entry_map;
         entry_map = {}
-        for (var entry of env.entry.split(",")){
+        for (var entry of env.entry.split(",")) {
             entry_map[entry] = raw_entry_map[entry];
         }
         // We delete the compiled javascript files for any
@@ -72,8 +72,8 @@ function make_entry_map(env) {
         // This is because when we only build some files,
         // we can no longer rely on webpack's normal
         // cleaning utils.
-        for (var name in entry_map){
-            fs.unlink("./dist/"+name+".js", () => 1);
+        for (var name in entry_map) {
+            fs.unlink("./dist/" + name + ".js", () => 1);
         }
     }
     console.log("entry: %j", entry_map)
@@ -84,7 +84,8 @@ function make_entry_map(env) {
 // see https://webpack.js.org/concepts/ for documentation
 //
 module.exports = env => ({
-    mode: "production",
+    mode: "development",
+    devtool: "source-map",
     // https://webpack.js.org/configuration/entry-context/
     entry: make_entry_map(env),
     // https://webpack.js.org/configuration/module/
@@ -121,6 +122,7 @@ module.exports = env => ({
         // means "./src/TextMulti.svelte" will be built as
         // "TextMulti.js" = "[name].js"
         filename: '[name].js',
+        sourceMapFilename: '[name].js.map',
         path: path.resolve(__dirname, 'dist'),
         library: '[name]',
         libraryExport: 'default',
@@ -129,7 +131,7 @@ module.exports = env => ({
     // If we are building all files (ie. not specifying
     // a limited number to build with env.entry) we use
     // webpacks clean functionality.
-    plugins: (env.entry == undefined)? [new CleanWebpackPlugin()] : [],
+    plugins: (env.entry == undefined) ? [new CleanWebpackPlugin()] : [],
     // https://webpack.js.org/configuration/watch/
     watchOptions: {
         ignored: /node_modules/,

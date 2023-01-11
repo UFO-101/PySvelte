@@ -10,6 +10,8 @@ from typing import Optional
 
 from datetime import date
 import pysvelte.config as config
+from pysvelte.javascript import load_dist_path
+import pathlib
 
 
 def _html_to_message(html, url: str) -> str:
@@ -22,10 +24,14 @@ def _html_to_message(html, url: str) -> str:
     return message
 
 
-def _publish_html_str(html_str: str, path: str):
+def _publish_html_str(html_str: str, path: str, source_map_name: str):
     """Publish a string of html."""
     with config.remote_open(path, "w") as f:
         f.write(html_str)
+    if source_map_name:
+        source_map_path = pathlib.Path(path).parent / source_map_name
+        with config.remote_open(source_map_path.resolve(), "w") as f:
+            f.write(load_dist_path(source_map_name))
     return config.remote_path_to_url(path)
 
 
@@ -89,6 +95,7 @@ class Publisher:
         self,
         html,
         path: Optional[str] = None,
+        source_map_name: Optional[str] = None,
         *,
         dev=None,
         dev_host=None,
@@ -111,7 +118,7 @@ class Publisher:
             dev_host = dev_host or "http://localhost:9000/"
 
         html_str = html.html_page_str(dev_host=dev_host)
-        url = _publish_html_str(html_str, path)
+        url = _publish_html_str(html_str, path, source_map_name)
 
         if is_remote_path:
             if share and not dev:
